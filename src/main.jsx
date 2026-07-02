@@ -96,14 +96,6 @@ function App() {
     setLocked(false);
   }
 
-  if (locked) {
-    return <AccessScreen onSubmit={unlock} />;
-  }
-
-  function updateCollection(key, updater) {
-    commit({ ...data, [key]: updater(data[key]) });
-  }
-
   const filteredPatients = useMemo(() => {
     const term = query.trim().toLowerCase();
     if (!term) return data.patients;
@@ -113,6 +105,14 @@ function App() {
         .some((item) => item.toLowerCase().includes(term))
     );
   }, [data.patients, query]);
+
+  if (locked) {
+    return <AccessScreen onSubmit={unlock} />;
+  }
+
+  function updateCollection(key, updater) {
+    commit({ ...data, [key]: updater(data[key]) });
+  }
 
   return (
     <div className="app">
