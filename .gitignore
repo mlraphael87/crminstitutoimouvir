@@ -8,3 +8,5 @@ _xlsx/
 .env
 .env.local
 .vercel/
+
+.vercel
