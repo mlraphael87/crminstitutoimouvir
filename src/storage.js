@@ -164,4 +164,28 @@ export function loadData() {
 
 export function saveData(data) {
   localStorage.setItem(key, JSON.stringify(data));
+  saveRemoteData(data);
+}
+
+export async function loadRemoteData() {
+  try {
+    const response = await fetch("/api/state", { headers: { Accept: "application/json" } });
+    if (!response.ok) return null;
+    const payload = await response.json();
+    return payload?.data || null;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveRemoteData(data) {
+  try {
+    await fetch("/api/state", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data })
+    });
+  } catch {
+    // Offline/local usage keeps working through localStorage and JSON export.
+  }
 }

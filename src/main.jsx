@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Activity,
@@ -20,7 +20,7 @@ import {
   Users
 } from "lucide-react";
 import "./styles.css";
-import { initialData, loadData, saveData } from "./storage";
+import { initialData, loadData, loadRemoteData, saveData } from "./storage";
 
 const stages = [
   "Lead",
@@ -65,6 +65,15 @@ function App() {
   const [data, setData] = useState(loadData);
   const [view, setView] = useState("dashboard");
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    loadRemoteData().then((remote) => {
+      if (remote) {
+        setData(remote);
+        saveData(remote, { remote: false });
+      }
+    });
+  }, []);
 
   function commit(next) {
     setData(next);

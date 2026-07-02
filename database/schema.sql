@@ -75,3 +75,9 @@ create table order_items (
   unit_price numeric(12,2) not null,
   bonus boolean not null default false
 );
+
+create table crm_state (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
