@@ -1,0 +1,10 @@
+node_modules/
+dist/
+_docx/
+_xlsx/
+*.zip
+*.xlsx
+*.docx
+.env
+.env.local
+.vercel/
