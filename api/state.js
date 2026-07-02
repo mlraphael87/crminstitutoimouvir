@@ -20,6 +20,11 @@ async function ensure(sql) {
 }
 
 export default async function handler(req, res) {
+  const expectedCode = process.env.CRM_ACCESS_CODE;
+  if (expectedCode && req.headers["x-crm-access-code"] !== expectedCode) {
+    return json(res, 401, { error: "Acesso restrito." });
+  }
+
   if (!process.env.DATABASE_URL) {
     return json(res, 200, { data: initialData, storage: "local-fallback" });
   }

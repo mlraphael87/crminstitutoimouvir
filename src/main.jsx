@@ -20,7 +20,7 @@ import {
   Users
 } from "lucide-react";
 import "./styles.css";
-import { initialData, loadData, loadRemoteData, saveData } from "./storage";
+import { initialData, loadData, loadRemoteData, saveData, setAccessCode } from "./storage";
 
 const stages = [
   "Lead",
@@ -65,9 +65,14 @@ function App() {
   const [data, setData] = useState(loadData);
   const [view, setView] = useState("dashboard");
   const [query, setQuery] = useState("");
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     loadRemoteData().then((remote) => {
+      if (remote?.authRequired) {
+        setLocked(true);
+        return;
+      }
       if (remote) {
         setData(remote);
         saveData(remote, { remote: false });
@@ -78,6 +83,21 @@ function App() {
   function commit(next) {
     setData(next);
     saveData(next);
+  }
+
+  async function unlock(code) {
+    setAccessCode(code);
+    const remote = await loadRemoteData();
+    if (remote?.authRequired) {
+      setLocked(true);
+      return;
+    }
+    if (remote) setData(remote);
+    setLocked(false);
+  }
+
+  if (locked) {
+    return <AccessScreen onSubmit={unlock} />;
   }
 
   function updateCollection(key, updater) {
@@ -138,6 +158,23 @@ function App() {
         {view === "settings" && <SettingsView data={data} updateCollection={updateCollection} commit={commit} />}
       </main>
     </div>
+  );
+}
+
+function AccessScreen({ onSubmit }) {
+  const [code, setCode] = useState("");
+  return (
+    <main className="access-screen">
+      <section className="access-panel">
+        <img src="/logo-imouvir-header.png" alt="IMOUVIR" />
+        <h1>CRMINSTITUTO</h1>
+        <p>Acesso restrito à operação IMOUVIR.</p>
+        <form onSubmit={(event) => { event.preventDefault(); onSubmit(code); }}>
+          <label>Código de acesso<input value={code} onChange={(event) => setCode(event.target.value)} type="password" autoFocus required /></label>
+          <button className="primary">Entrar</button>
+        </form>
+      </section>
+    </main>
   );
 }
 

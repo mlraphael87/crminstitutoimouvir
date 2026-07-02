@@ -1,4 +1,5 @@
 const key = "crminstituto-data-v1";
+const authKey = "crminstituto-access-code";
 
 const products = [
   ["240470", "T-Cap Bege (CIC) - protetor microfone", "Acessório", 1100],
@@ -169,7 +170,8 @@ export function saveData(data) {
 
 export async function loadRemoteData() {
   try {
-    const response = await fetch("/api/state", { headers: { Accept: "application/json" } });
+    const response = await fetch("/api/state", { headers: remoteHeaders() });
+    if (response.status === 401) return { authRequired: true };
     if (!response.ok) return null;
     const payload = await response.json();
     return payload?.data || null;
@@ -182,10 +184,22 @@ export async function saveRemoteData(data) {
   try {
     await fetch("/api/state", {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: remoteHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ data })
     });
   } catch {
     // Offline/local usage keeps working through localStorage and JSON export.
   }
+}
+
+export function setAccessCode(code) {
+  sessionStorage.setItem(authKey, code);
+}
+
+function remoteHeaders(extra = {}) {
+  return {
+    Accept: "application/json",
+    "X-CRM-Access-Code": sessionStorage.getItem(authKey) || "",
+    ...extra
+  };
 }
